@@ -1,106 +1,96 @@
-const { Artisan, Metier, Categorie } = require('../models/associations');
-const { Op } = require('sequelize');
+const {
+    getAllArtisans: fetchAllArtisans,
+    getArtisanById: fetchArtisanById,getArtisanProfileByUserId,
+    createArtisanProfile: createArtisanProfileService,
+    updateArtisanProfile: updateArtisanProfileService
+} = require('../services/artisan.service');
 
+// Récupération de tous les artisans avec filtres et pagination
 const getAllArtisans = async (req, res) => {
-    // Récupération des artisans avec filtres par métier et catégorie
     try {
-        const { metier, categorie, page = 1, limit = 10 } = req.query;
-        const pageNumber = Number(page);
-        const limitNumber = Number(limit);
+        const artisans = await fetchAllArtisans(req.query);
 
-        if (
-            !Number.isInteger(pageNumber) ||
-            !Number.isInteger(limitNumber) ||
-            pageNumber < 1 ||
-            limitNumber < 1 ||
-            limitNumber > 50
-        ){
-
-            return res.status(400).json({
-            message: 'Paramètres de pagination invalides'
-            });
-        }
-        const where = {};
-        const offset = (pageNumber - 1) * limitNumber;
-
-        if (metier) {
-            where.id_metier = metier;
-        }
-
-        if (categorie) {
-            where['$Metier.id_categorie$'] = categorie;
-        }   
-
-
-       const { count, rows: artisans } = await Artisan.findAndCountAll({
-    where,
-    limit: limitNumber,
-    offset,
-    include: [
-        {
-            model: Metier,
-            include: [
-                {
-                    model: Categorie
-                }
-            ]
-        }
-    ]
-});
-
-        const totalPages = Math.ceil(count / limitNumber);
-
-        res.status(200).json({
-            artisans,
-            totalArtisans: count,
-            totalPages,
-            pageActuelle: pageNumber
-        });
-
-       
+        return res.status(200).json(artisans);
 
     } catch (error) {
-        res.status(500).json({
-            message: 'Erreur lors de la récupération des artisans',
-            error: error.message
+        return res.status(error.statusCode || 500).json({
+            message: error.message
         });
     }
 };
 
+// Récupération d'un artisan à partir de son identifiant
 const getArtisanById = async (req, res) => {
     try {
-        const id = req.params.id;
+        const artisan = await fetchArtisanById(req.params.id);
 
-        const artisan = await Artisan.findByPk(id, {
-            include: [
-                {
-                    model: Metier,
-                    include: [
-                        {
-                            model: Categorie
-                        }
-                    ]
-                }
-            ]
-        });
-
-        if (!artisan) {
-            return res.status(404).json({
-                message: 'Artisan introuvable'
-            });
-        }
-
-        res.status(200).json(artisan);
+        return res.status(200).json(artisan);
 
     } catch (error) {
-        res.status(500).json({
-            message: 'Erreur lors de la récupération de l artisan',
-            error: error.message
+        return res.status(error.statusCode || 500).json({
+            message: error.message
+        });
+    }
+};
+
+// Récupération de la fiche artisan du compte connecté
+const getMyArtisanProfile = async (req, res) => {
+    try {
+        const artisan = await getArtisanProfileByUserId(
+            req.user.id_utilisateur
+        );
+
+        return res.status(200).json(artisan);
+
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            message: error.message
+        });
+    }
+};
+
+// Création de la fiche artisan du compte connecté
+const createMyArtisanProfile = async (req, res) => {
+    try {
+        const artisan = await createArtisanProfileService(
+            req.user.id_utilisateur,
+            req.body
+        );
+
+        return res.status(201).json({
+            message: 'Fiche professionnelle créée avec succès',
+            artisan
+        });
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            message: error.message
+        });
+    }
+};
+
+// Modification de la fiche artisan du compte connecté
+const updateMyArtisanProfile = async (req, res) => {
+    try {
+        const artisan = await updateArtisanProfileService(
+            req.user.id_utilisateur,
+            req.body
+        );
+
+        return res.status(200).json({
+            message: 'Fiche professionnelle mise à jour avec succès',
+            artisan
+        });
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            message: error.message
         });
     }
 };
 
 module.exports = {
     getAllArtisans,
-    getArtisanById
+    getArtisanById,
+    getMyArtisanProfile,
+    createMyArtisanProfile,
+    updateMyArtisanProfile
 };

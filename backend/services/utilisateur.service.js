@@ -12,6 +12,11 @@ const registerUser = async (userData) => {
         error.statusCode = 400;
         throw error;
     }
+    if (!['particulier', 'artisan'].includes(role)) {
+    const error = new Error('Rôle invalide');
+    error.statusCode = 400;
+    throw error;
+}
 
     // Vérification du format de l'adresse email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -60,7 +65,29 @@ const registerUser = async (userData) => {
     };
 
 };
+// Récupère les informations d'un utilisateur existant
+const getUserProfile = async (id_utilisateur) => {
+    const user = await Utilisateur.findByPk(id_utilisateur);
+
+    if(!user) {
+        const error= new Error('Utilisateur introuvable');
+        error.statusCode= 404;
+        throw error;
+    }
+    return {
+        id_utilisateur: user.id_utilisateur,
+        nom: user.nom,
+        prenom: user.prenom,
+        email: user.email,
+        role: user.role,
+        date_creation: user.date_creation,
+        photo: user.photo
+
+    };
+
+};
 
 module.exports = {
-    registerUser
+    registerUser,
+    getUserProfile
 };
