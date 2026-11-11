@@ -1,4 +1,5 @@
-const { registerUser, getUserProfile } = require('../services/utilisateur.service');
+const Utilisateur = require('../models/Utilisateur');
+const { registerUser, getUserProfile, updateUserProfile } = require('../services/utilisateur.service');
 
 const createUser = async (req, res) => {
     try {
@@ -30,7 +31,27 @@ const getMyProfile = async (req, res) => {
     }
 };
 
+// Modifie le profil de l'utilisateur connecté
+const updateMyProfile = async (req, res) => {
+    try {
+        const id_utilisateur = req.user.id_utilisateur;
+
+        const updatedUser = await updateUserProfile(id_utilisateur, req.body);
+
+        return res.status(200).json({
+            message: 'Profil modifié avec succès',
+            user: updatedUser
+        });
+
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            message: error.message
+        });
+    }
+};
+
 module.exports = {
     createUser, 
-    getMyProfile
+    getMyProfile, 
+    updateMyProfile
 };
