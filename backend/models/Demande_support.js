@@ -32,7 +32,7 @@ const Demande_support = sequelize.define(
         }
     },
     {
-        tableName: 'Demande_support',
+        tableName: 'demande_support',
         timestamps: false
     }
 );

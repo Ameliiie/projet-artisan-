@@ -21,7 +21,7 @@ const Favori =sequelize.define(
         }
     },
     {
-        tableName: 'Favori',
+        tableName: 'favori',
         timestamps: false,
         indexes: [
             {

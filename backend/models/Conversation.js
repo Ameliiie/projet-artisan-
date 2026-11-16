@@ -22,7 +22,7 @@ const Conversation = sequelize.define(
         }
     },
     {
-        tableName: 'Conversation',
+        tableName: 'conversation',
         timestamps: false
     }
 );

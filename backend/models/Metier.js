@@ -24,7 +24,7 @@ const Metier =sequelize.define(
         
     },
     {
-        tableName: 'Metier',
+        tableName: 'metier',
         timestamps: false
     }
 );
