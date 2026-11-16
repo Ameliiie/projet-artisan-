@@ -36,7 +36,7 @@ const Demande_contact = sequelize.define(
         }
     },
     {
-        tableName: 'Demande_contact',
+        tableName: 'demande_contact',
         timestamps: false
     }
 );
