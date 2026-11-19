@@ -9,6 +9,7 @@ const authRoutes = require('./routes/auth.routes');
 const conversationRoutes = require('./routes/conversation.routes');
 const favoriRoutes = require('./routes/favori.routes');
 const demandeContactRoutes = require('./routes/demande_contact.routes')
+const demandeSupportRoutes = require('./routes/demande_support.routes');
 
 app.use(express.json());
 
@@ -20,5 +21,6 @@ app.use('/api', authRoutes);
 app.use('/api', conversationRoutes);
 app.use('/api', favoriRoutes);
 app.use('/api', demandeContactRoutes);
+app.use('/api', demandeSupportRoutes);
 
 module.exports = app;
