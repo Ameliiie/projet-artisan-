@@ -47,12 +47,14 @@ const registerUser = async (userData) => {
     
 
     const hashedPassword = await bcrypt.hash(mot_de_passe, 10);
+    const statut = role === 'artisan' ? 'en_attente' : 'actif';
     const newUser = await Utilisateur.create({
-    nom: nomNettoye,
-    prenom: prenomNettoye,
-    email: emailNettoye,
-    mot_de_passe: hashedPassword,
-    role
+        nom: nomNettoye,
+        prenom: prenomNettoye,
+        email: emailNettoye,
+        mot_de_passe: hashedPassword,
+        role,
+        statut
 });
 
     return {
@@ -61,6 +63,7 @@ const registerUser = async (userData) => {
         prenom: newUser.prenom,
         email: newUser.email,
         role: newUser.role,
+        statut: newUser.statut,
         date_creation: newUser.date_creation
     };
 
