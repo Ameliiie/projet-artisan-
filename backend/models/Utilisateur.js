@@ -46,6 +46,12 @@ const Utilisateur = sequelize.define(
         photo: {
             type: DataTypes.STRING(255),
             allowNull: true
+        },
+
+        statut: {
+            type: DataTypes.STRING(20),
+            allowNull: false,
+            defaultValue: 'actif'
         }
     },
     {

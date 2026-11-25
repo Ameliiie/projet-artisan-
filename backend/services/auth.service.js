@@ -25,6 +25,13 @@ const loginUser = async (email, mot_de_passe) => {
         throw error;
     }
 
+    // Vérifier le statut du compte
+    if (user.statut !== 'actif') {
+        const error = new Error('Votre compte n’est pas actif ou est en attente de validation');
+        error.statusCode = 403;
+        throw error;
+    }
+
     const payload = {
         id_utilisateur: user.id_utilisateur,
         role: user.role
@@ -45,7 +52,8 @@ const loginUser = async (email, mot_de_passe) => {
             nom: user.nom,
             prenom: user.prenom,
             email: user.email,
-            role: user.role
+            role: user.role,
+            statut: user.statut
         }
     };
 };
