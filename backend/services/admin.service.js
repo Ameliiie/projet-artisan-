@@ -6,6 +6,7 @@ const {
     Demande_contact,
     Demande_support
 } = require('../models/associations');
+const { createHistory } = require('./historique.service');
 
 // Récupération de la liste de tous les utilisateurs 
 
@@ -75,7 +76,8 @@ const getPendingArtisans = async () => {
 // Permettre à l'administrateur de valider ou refuser une demande 
 
 // Modification du statut d'un artisan (validation ou refus de son inscription)
-const updateArtisanStatus = async (id_utilisateur, nouveauStatut) => {
+
+const updateArtisanStatus = async (id_utilisateur, nouveauStatut, id_admin) => {
 
     // Vérifier que le nouveau statut correspond à une décision autorisée (validation ou refus)
     if (!['actif', 'refuse'].includes(nouveauStatut)) {
@@ -105,23 +107,47 @@ const updateArtisanStatus = async (id_utilisateur, nouveauStatut) => {
     artisan.statut = nouveauStatut;
     await artisan.save();
 
+    // Déterminer l'action à enregistrer
+    const action = nouveauStatut === 'actif'
+        ? 'ARTISAN_VALIDE'
+        : 'ARTISAN_REFUSE';
+
+    // Préparer la description de l'action
+    const description = `L'administrateur ${id_admin} a ${
+        nouveauStatut === 'actif' ? 'validé' : 'refusé'
+    } la demande de l'artisan ${id_utilisateur}.`;
+
+    // Enregistrer l'action dans l'historique
+    await createHistory(id_admin, action, description);
+
     return artisan;
 };
 
-const updateUserStatus = async (id_utilisateur, nouveauStatut) => {
+
+const updateUserStatus = async (id_utilisateur, nouveauStatut, id_admin) => {
+
+    // Rechercher l'utilisateur grâce à son identifiant
     const user = await Utilisateur.findByPk(id_utilisateur);
 
-
+    // Vérifier que l'utilisateur existe
     if (!user) {
-        const error = new Error ('Utilisateur introuvable');
+        const error = new Error('Utilisateur introuvable');
         error.statusCode = 404;
         throw error;
     }
 
-    if ( !['actif','desactive'].includes(nouveauStatut)) {
-    const error = new Error ('Statut invalide');
-    error.statusCode = 400;
-    throw error;
+    // Vérifier que le statut est autorisé
+    if (!['actif', 'desactive'].includes(nouveauStatut)) {
+        const error = new Error('Statut invalide');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    // Vérifier que le compte est concerné par un changement de statut
+    if (user.statut === nouveauStatut) {
+        const error = new Error('Le compte possède déjà ce statut.');
+        error.statusCode = 400;
+        throw error;
     }
 
     // Modifier le statut du compte
@@ -129,6 +155,19 @@ const updateUserStatus = async (id_utilisateur, nouveauStatut) => {
 
     // Enregistrer les modifications dans la base de données
     await user.save();
+
+    // Déterminer l'action à enregistrer
+    const action = nouveauStatut === 'desactive'
+        ? 'COMPTE_DESACTIVE'
+        : 'COMPTE_REACTIVE';
+
+    // Préparer la description de l'action
+    const description = `L'administrateur ${id_admin} a ${
+        nouveauStatut === 'desactive' ? 'désactivé' : 'réactivé'
+    } le compte de l'utilisateur ${id_utilisateur}.`;
+
+    // Enregistrer l'action dans l'historique
+    await createHistory(id_admin, action, description);
 
     return user;
 };

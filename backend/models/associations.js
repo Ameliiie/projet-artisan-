@@ -8,7 +8,7 @@ const Demande_contact = require('./Demande_contact');
 const Demande_support = require('./Demande_support');
 const Conversation = require('./Conversation');
 const Message = require('./Message');
-
+const Historique = require('./Historique');
 
 
 // Une catégorie peut regrouper plusieurs métiers
@@ -112,6 +112,15 @@ Conversation.belongsTo(Artisan, {
     foreignKey: 'id_artisan'
 });
 
+// Associations Historique - Utilisateur
+
+Utilisateur.hasMany(Historique, {
+    foreignKey: 'id_utilisateur'
+});
+
+Historique.belongsTo(Utilisateur, {
+    foreignKey: 'id_utilisateur'
+});
 
 
 
@@ -124,5 +133,6 @@ module.exports = {
     Demande_contact, 
     Demande_support, 
     Conversation,
-    Message
+    Message, 
+    Historique
 };
