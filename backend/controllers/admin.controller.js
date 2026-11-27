@@ -18,7 +18,6 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
     try {
         const { id_utilisateur } = req.params;
-
         const user = await adminService.getUserById(id_utilisateur);
 
         return res.status(200).json(user);
@@ -49,10 +48,12 @@ const updateArtisanStatus = async (req, res) => {
     try {
         const { id_utilisateur } = req.params;
         const { nouveauStatut } = req.body;
+        const id_admin = req.user.id_utilisateur;
 
         const artisan = await adminService.updateArtisanStatus(
             id_utilisateur,
-            nouveauStatut
+            nouveauStatut,
+            id_admin
         );
 
         return res.status(200).json(artisan);
@@ -64,15 +65,19 @@ const updateArtisanStatus = async (req, res) => {
     }
 };
 
+
 // Modifier le statut d'un compte utilisateur
 const updateUserStatus = async (req, res) => {
     try {
         const { id_utilisateur } = req.params;
         const { nouveauStatut } = req.body;
+        const id_admin = req.user.id_utilisateur;  
 
         const user = await adminService.updateUserStatus(
             id_utilisateur,
-            nouveauStatut
+            nouveauStatut,
+            id_admin
+            
         );
 
         return res.status(200).json(user);
